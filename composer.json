@@ -43,7 +43,9 @@
             "database/factories"
         ],
         "files": [
-            "app/helpers.php"
+            "app/helpers.php",
+            "app/Services/Utils/chinaArea.php",
+            "app/Services/Utils/oaRequests.php"
         ]
     },
     "autoload-dev": {
