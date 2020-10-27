@@ -15,8 +15,9 @@ Route::group([
     $router->get('/', 'HomeController@index')->name('home');
 
     $router->resources([
-        'file/basics' => FileBasicsController::class,
-        'file/educations' => FileEducationsController::class,
+        'file/basics'           => FileBasicsController::class,
+        'file/educations'       => FileEducationsController::class,
+        'file/workexperience'   => FileWorkExperienceController::class,
     ]);
 
 });
