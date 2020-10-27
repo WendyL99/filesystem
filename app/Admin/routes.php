@@ -16,6 +16,7 @@ Route::group([
 
     $router->resources([
         'file/basics' => FileBasicsController::class,
+        'file/educations' => FileEducationsController::class,
     ]);
 
 });
