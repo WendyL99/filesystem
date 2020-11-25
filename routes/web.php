@@ -38,3 +38,6 @@ Route::post('email/resend', 'Auth\VerificationController@resend')->name('verific
 //OA请求
 Route::get('/wechatusers/get','InstranetController@getWechatUsers');
 Route::get('/userlist/get','InstranetController@getOAUserlist');
+
+//用户
+Route::get('/user/{user}', 'UsersController@show')->name('users.show');
