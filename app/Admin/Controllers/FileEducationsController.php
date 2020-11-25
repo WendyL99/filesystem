@@ -4,7 +4,6 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Models\FileBasics;
 use App\Admin\Models\FileEducations;
-use App\Models\Educations;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -39,8 +38,8 @@ class FileEducationsController extends AdminController
         $grid->column('education_background', config('constants.CN.EDUCATION_BACKGROUND'));
         $grid->column('graduate_date', config('constants.CN.GRADUATE_DATE'));
         $grid->column('awards', config('constants.CN.AWARDS'));
-        $grid->column('created_at', config('constants.CN.CREATEDAT'));
-        $grid->column('updated_at', config('constants.CN.UPDATEDAT'));
+        //$grid->column('created_at', config('constants.CN.CREATEDAT'));
+        //$grid->column('updated_at', config('constants.CN.UPDATEDAT'));
 
         $grid->filter(function ($filter){
             $filter->like('school_name',config('constants.CN.SCHOOL_NAME'));
@@ -66,8 +65,8 @@ class FileEducationsController extends AdminController
         $show->field('education_background', config('constants.CN.EDUCATION_BACKGROUND'));
         $show->field('graduate_date',config('constants.CN.GRADUATE_DATE'));
         $show->field('awards', config('constants.CN.AWARDS'));
-        $show->field('created_at', config('constants.CN.CREATEDAT'));
-        $show->field('updated_at', config('constants.CN.UPDATEDAT'));
+        //$show->field('created_at', config('constants.CN.CREATEDAT'));
+        //$show->field('updated_at', config('constants.CN.UPDATEDAT'));
 
         return $show;
     }
@@ -79,9 +78,7 @@ class FileEducationsController extends AdminController
      */
     protected function form()
     {
-        //$form = new Form(new FileEducations());
-
-        $form = new Form(new Educations());
+        $form = new Form(new FileEducations());
 
         $form->text('fileID', config('constants.CN.FILEID'))
             ->options(FileBasics::all()->pluck('fileID', 'fileID'))

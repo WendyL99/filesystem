@@ -37,7 +37,7 @@ function getDepartmentList($base_uri, $token)
  * @return |null
  * @throws \GuzzleHttp\Exception\GuzzleException
  */
-function getWechatUserList($wechat_source, $default='')
+function getWechatUserList($wechat_source)
 {
     $_base_uri = env('CSOA_BASE_URI');
     $_token = base64_encode(date("Ymd").env('CSOA_TOKEN_SALT'));
@@ -50,12 +50,12 @@ function getWechatUserList($wechat_source, $default='')
 
     $json_data = json_decode($requests->getBody()->getContents(),true);
     if($json_data && $json_data['errcode'] == 0 && !empty($json_data['data'])){
-        if(isset($default) && $default && in_array($default, $json_data['data'])){
-            $key = array_search($default,$json_data['data']);
-            unset($json_data['data'][$key]);
-            array_splice($json_data['data'], 0, 0, $default);
+        $options = array();
+        foreach($json_data['data'] as $row){
+            $options[$row] = $row;
         }
-        return $json_data['data'];
+
+        return $options;
     }
 
     return null;

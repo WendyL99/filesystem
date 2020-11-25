@@ -4,7 +4,6 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Models\FileBasics;
 use App\Admin\Models\FileWorkExperience;
-use App\Models\WorkExperience;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -71,9 +70,7 @@ class FileWorkExperienceController extends AdminController
      */
     protected function form()
     {
-        //$form = new Form(new FileWorkExperience());
-
-        $form = new Form(new WorkExperience());
+        $form = new Form(new FileWorkExperience());
 
         $form->text('fileID', config('constants.CN.FILEID'))
             ->options(FileBasics::all()->pluck('fileID', 'fileID'))

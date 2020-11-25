@@ -11,11 +11,11 @@ function route_class()
  * @param $options
  * @return string
  */
-function parseCheckboxValue($str, $options)
+function parseCheckboxValue($checked, $options)
 {
-    preg_match_all('/(\d+)/',$str,$match);
+    //preg_match_all('/(\d+)/',$str,$match);
     $value_arr = array();
-    foreach ($match[0] as $row){
+    foreach ($checked as $row){
         $value_arr[] = $options[$row];
     }
     return implode(',',$value_arr);

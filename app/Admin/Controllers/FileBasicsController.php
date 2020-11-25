@@ -2,7 +2,10 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Actions\FilesImportAction;
 use App\Admin\Models\FileBasics;
+use App\Admin\Models\FileEducations;
+use App\Admin\Models\FileWorkExperience;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -34,10 +37,13 @@ class FileBasicsController extends AdminController
 
         $this->wechat_source = config('constants.OPTIONS.WECHAT_SOURCE_OPT');
 
-//        $departments = getDepartmentList($this->oa_base_uri, $this->oa_token);  //var_dump($departments);die;
-//        foreach ($departments as $row){
-//            $this->department_options[$row['id']] = $row['text'];
-//        }
+        $departments = getDepartmentList($this->oa_base_uri, $this->oa_token);
+        if(!empty($departments)){
+            foreach ($departments as $row){
+                $this->department_options[$row['id']] = $row['text'];
+            }
+        }
+
     }
 
     /**
@@ -54,9 +60,9 @@ class FileBasicsController extends AdminController
         $grid->column('department', config('constants.CN.DEPARTMENT'))->using($this->department_options);
         $grid->column('status',config('constants.CN.STATUS'))->using(config('constants.OPTIONS.STATUS_OPT'));
 
-//        $grid->tools(function (Grid\Tools $tools){
-//            $tools->append(new BasicsImportAction());
-//        });
+        $grid->tools(function (Grid\Tools $tools){
+            $tools->append(new FilesImportAction());
+        });
 
         return $grid;
     }
@@ -113,7 +119,7 @@ class FileBasicsController extends AdminController
         $show->field('emegency_contact', config('constants.CN.EMEGENCY_CONTACT'));
 
         $show->educations('教育程度',function ($education){
-            $education->resource('/file/educations');
+            $education->resource('/admin/file/educations');
 
             $education->eduID('ID');
             $education->school_name(config('constants.CN.SCHOOL_NAME'));
@@ -130,7 +136,7 @@ class FileBasicsController extends AdminController
         });
 
         $show->workexperience('工作经验', function ($line){
-            $line->resource('/file/workexperience');
+            $line->resource('/admin/file/workexperience');
 
             $line->weID('ID');
             $line->company_name(config('constants.CN.COMPANY_NAME'));
@@ -147,6 +153,46 @@ class FileBasicsController extends AdminController
         });
 
         return $show;
+    }
+
+    public function edit($id, Content $content)
+    {
+        return $content
+            ->title('员工档案')
+            ->description('基本信息')
+            ->row($this->form()->edit($id))
+            ->row(Admin::grid(FileEducations::class, function (Grid $grid) use ($id){
+                $grid->setName('教育程度')
+                    ->setTitle('教育程度')
+                    ->setRelation(FileBasics::find($id)->Educations())
+                    ->resource('/admin/file/educations');
+
+                $grid->eduID('ID');
+                $grid->school_name(config('constants.CN.SCHOOL_NAME'));
+                $grid->major_name(config('constants.CN.MAJOR_NAME'));
+                $grid->education_background(config('constants.CN.EDUCATION_BACKGROUND'));
+                $grid->graduate_date(config('constants.CN.GRADUATE_DATE'));
+                //$grid->created_at()->date('Y-m-d H:i:s');
+                //$grid->updated_at()->date('Y-m-d H:i:s');
+
+                $grid->disableFilter();
+                $grid->disableExport();
+            }))
+            ->row(Admin::grid(FileWorkExperience::class, function (Grid $grid) use ($id){
+                $grid->setName('工作经验')
+                    ->setTitle('工作经验')
+                    ->setRelation(FileBasics::find($id)->Workexperience())
+                    ->resource('/admin/file/workexperience');
+
+                $grid->weID('ID');
+                $grid->company_name(config('constants.CN.COMPANY_NAME'));
+                $grid->position(config('constants.CN.POSITION'));
+                $grid->work_start_time(config('constants.CN.WORK_START_TIME'));
+                $grid->work_end_time(config('constants.CN.WORK_END_TIME'));
+
+                $grid->disableFilter();
+                $grid->disableExport();
+            }));
     }
 
     /**
@@ -212,43 +258,5 @@ class FileBasicsController extends AdminController
         return $form;
     }
 
-    public function edit($id, Content $content)
-    {
-        return $content
-            ->title('员工档案')
-            ->description('基本信息')
-            ->row($this->form()->edit($id))
-            ->row(Admin::grid(Educations::class, function (Grid $grid) use ($id){
-                $grid->setName('教育程度')
-                    ->setTitle('教育程度')
-                    ->setRelation(FileBasics::find($id)->Educations())
-                    ->resource('/file/educations');
 
-                $grid->eduID('ID');
-                $grid->school_name(config('constants.CN.SCHOOL_NAME'));
-                $grid->major_name(config('constants.CN.MAJOR_NAME'));
-                $grid->education_background(config('constants.CN.EDUCATION_BACKGROUND'));
-                $grid->graduate_date(config('constants.CN.GRADUATE_DATE'));
-                //$grid->created_at()->date('Y-m-d H:i:s');
-                //$grid->updated_at()->date('Y-m-d H:i:s');
-
-                $grid->disableFilter();
-                $grid->disableExport();
-            }))
-            ->row(Admin::grid(WorkExperience::class, function (Grid $grid) use ($id){
-                $grid->setName('工作经验')
-                    ->setTitle('工作经验')
-                    ->setRelation(FileBasics::find($id)->Workexperience())
-                    ->resource('/file/workexperience');
-
-                $grid->weID('ID');
-                $grid->company_name(config('constants.CN.COMPANY_NAME'));
-                $grid->position(config('constants.CN.POSITION'));
-                $grid->work_start_time(config('constants.CN.WORK_START_TIME'));
-                $grid->work_end_time(config('constants.CN.WORK_END_TIME'));
-
-                $grid->disableFilter();
-                $grid->disableExport();
-            }));
-    }
 }
