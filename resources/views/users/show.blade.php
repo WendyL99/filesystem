@@ -12,7 +12,7 @@
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
           <hr>
           <h5><strong>注册于</strong></h5>
-          <p>January 01 2020</p>
+          <p>{{ $user->created_at->diffForHumans() }}</p>
         </div>
       </div>
     </div>

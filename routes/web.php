@@ -40,4 +40,5 @@ Route::get('/wechatusers/get','InstranetController@getWechatUsers');
 Route::get('/userlist/get','InstranetController@getOAUserlist');
 
 //用户
-Route::get('/user/{user}', 'UsersController@show')->name('users.show');
+//Route::get('/user/{user}', 'UsersController@show')->name('users.show');
+Route::resource('users', 'UsersController', ['only' => ['show', 'update', 'edit']]);

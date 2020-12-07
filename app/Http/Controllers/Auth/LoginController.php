@@ -47,49 +47,58 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $host = env('GZLDAP_HOST');
-        $port = env('GZLDAP_PORT');
-        $base_dn = env('GZLDAP_BASE_DN');
-        $dn = 'cn='.$request->name.','.$base_dn;
+        $isLoadLdap = false;
 
-        $ds = ldap_connect($host,$port)
-                or die("Could not connect to LDAP server.");
+        $user = User::where('name', $request->name)->first();
+        if(empty($user)) $isLoadLdap = true;
 
-        ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION,3);
+        if($user && $this->attemptLogin($request) == false) $isLoadLdap = true;
 
-        if($ds){
-            $r = ldap_bind($ds, $dn, $request->password);
+        if($isLoadLdap){
+            $host = env('GZLDAP_HOST');
+            $port = env('GZLDAP_PORT');
+            $base_dn = env('GZLDAP_BASE_DN');
+            $dn = 'cn='.$request->name.','.$base_dn;
 
-            if(!$r){
-                echo ldap_error($dn);
-                exit;
-            }else{
-                //若该用户是新用户，进行用户信息保存；若是旧用户，刷新本地密码然后进行登录
-                $filter = '(cn='.$request->name.')';
-                $res = ldap_search($ds, $dn, $filter);
-                $res = ldap_get_entries($ds, $res);
+            $ds = ldap_connect($host,$port)
+            or die("Could not connect to LDAP server.");
 
-                $user = User::where('name', $request->name)->first();
-                if($user){
-                    $user->password = bcrypt($request->password); //刷新本地密码
-                    $user->save();
+            ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION,3);
+
+            if($ds){
+                $r = ldap_bind($ds, $dn, $request->password);
+
+                if(!$r){
+                    echo ldap_error($dn);
+                    exit;
                 }else{
-                    $data = [
-                        'name' => $request->name,
-                        'email' => $res[0]['mail'][0],
-                        'password' => bcrypt($request->password),
-                        'job_title' => $res[0]['title'][0],
-                        'departmentId' => $res[0]['departmentnumber'][0],
-                        'description' => $res[0]['description'][0]
-                    ];
-                    User::create($data);
-                }
-            }
-        }else{
-            die("Unable to connect to LDAP server");
-        }
+                    //若该用户是新用户，进行用户信息保存；若是旧用户，刷新本地密码然后进行登录
+                    $filter = '(cn='.$request->name.')';
+                    $res = ldap_search($ds, $dn, $filter);
+                    $res = ldap_get_entries($ds, $res);
 
-        ldap_unbind($ds); //close ldap connection
+                    $user = User::where('name', $request->name)->first();
+                    if($user){
+                        $user->password = bcrypt($request->password); //刷新本地密码
+                        $user->save();
+                    }else{
+                        $data = [
+                            'name' => $request->name,
+                            'email' => $res[0]['mail'][0],
+                            'password' => bcrypt($request->password),
+                            'job_title' => $res[0]['title'][0],
+                            'departmentId' => $res[0]['departmentnumber'][0],
+                            'description' => $res[0]['description'][0]
+                        ];
+                        User::create($data);
+                    }
+                }
+            }else{
+                die("Unable to connect to LDAP server");
+            }
+
+            ldap_unbind($ds); //close ldap connection
+        }
 
         $this->validateLogin($request);
 
